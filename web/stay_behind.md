@@ -1,83 +1,45 @@
-# Writeup : stay_behind
+# Stay Behind — Web · AWS IAM Persistence
 
-Catégorie : web
+**Catégorie** : web  
+**Flag** : `HLB2026{2c769d9f441def112ad098192a7a3bb9}`
 
-Date de résolution : 2026-11-15
+## TL;DR
 
-Technique principale : AWS-emulated S3/IAM/Lambda; UpdateAssumeRolePolicy trust-policy persistence across IR sweep
+Un bucket S3 public expose des credentials AWS. Avec ces creds on remonte jusqu'à un rôle Lambda, on y insère une trust policy wildcard qui survit au sweep IR, puis on ré-assume ce rôle après le nettoyage pour lire le canary dans S3.
 
-Outils observés : aws,curl,solve.py
+## Reconnaissance
 
-Cible : -
+Le service expose un bucket `campaign-backup.zip` en accès public. L'archive contient des credentials AWS en clair :
 
-## Présentation
-
-Ce document est construit à partir de la mémoire CTF partagée et des artefacts conservés dans /root/ctf/stay_behind. Les étapes ci-dessous reprennent uniquement les faits observés. Les captures sont réalisées sur les fichiers locaux, sans rejouer une action distante ou destructive.
-
-## Analyse et raisonnement
-
-### Exploitation
-
-S3 campaign-backup.zip -> SecretsManager deploy/ci-token -> svc-deploy UpdateFunctionCode/Invoke -> role campaign-scheduler-exec; UpdateAssumeRolePolicy Principal AWS:*; POST /_ctf/run-ir; re-AssumeRole; GetObject vdc-coord-audit/flag.canary
-
-### Pourquoi ça marche
-
-A wildcard role trust policy survives the IR cleanup that revokes identities, created users, keys, Lambda code, and pre-sweep sessions; assume a fresh admin role session after POST_IR and read the canary object.
-
-### Pièges
-
-IAM users/keys created after T0 are swept; the persistence must live in the role trust policy.
-
-### Notes locales conservées
-
-## Journal
-1. 2026-11-15T18:22:18Z unknown : Codex prend la reconnaissance HTTP et la persistance; aucun endpoint testé
-
-## Journal
-2. 2026-11-15T18:25:17Z unknown : Triage: seul 9020, page statique; bucket S3 expose campaign-backup.zip avec credentials AWS. Tests AWS sur endpoint public seulement; fuzz routes/buckets en cours.
-
-## Journal
-3. 2026-11-15T18:29:17Z unknown : Cursor identifié API cloud: svc-campaign-ingest; secret deploy/ci-token et Lambda campaign-scheduler sont le pivot. Codex surveille sans muter.
-
-## Journal
-4. 2026-11-15T18:34:04Z unknown : FLAG via trust-policy persist + IR + s3://vdc-coord-audit/flag.canary
-
-## Commandes utiles
-
-Les commandes suivantes consultent les preuves locales et sont sans effet de bord :
-
-```bash
-cd /root/ctf/stay_behind
-file notes.md flags.txt 2>/dev/null
-sed -n '1,180p' notes.md 2>/dev/null
-sed -n '1,120p' notes.md 2>/dev/null
-sed -n '1,10p' flags.txt 2>/dev/null
+```
+AWS_ACCESS_KEY_ID=AKIA...
+AWS_SECRET_ACCESS_KEY=...
 ```
 
-## Script de résolution complet
+Ces credentials appartiennent à `svc-campaign-ingest`. Une énumération IAM montre qu'il peut invoquer la Lambda `campaign-scheduler` et en modifier le code (`UpdateFunctionCode`). En remontant les droits attachés au rôle d'exécution `campaign-scheduler-exec`, on constate qu'il peut également appeler `UpdateAssumeRolePolicy`.
 
-Le script conservé sous `aucun fichier autonome` est reproduit ci-dessous sans modification :
+## Pivot vers la persistance
 
-```python
-Aucun script autonome n’a été conservé dans le dossier local. Les éléments réellement disponibles sont reproduits dans les sections d’analyse et de preuve.
+La plateforme expose un endpoint `POST /_ctf/run-ir` qui simule un Incident Response : il révoque les identités créées depuis T0, supprime les utilisateurs IAM, les clés, et modifie le code Lambda. Ce que le sweep ne touche pas : les trust policies des rôles existants.
+
+Avant de déclencher l'IR, on modifie la trust policy de `campaign-scheduler-exec` pour autoriser n'importe quel principal AWS :
+
+```json
+{
+  "Effect": "Allow",
+  "Principal": {"AWS": "*"},
+  "Action": "sts:AssumeRole"
+}
 ```
 
-## Captures du terminal
+## Post-IR
 
-Les captures utilisent le terminal natif xterm disponible sur l’environnement, avec le prompt réel `root@vmi3694110`, le dossier courant du challenge et une géométrie identique. Elles montrent successivement l’analyse locale, le script ou les preuves de résolution, puis le flag conservé.
+Une fois le sweep déclenché via `POST /_ctf/run-ir`, toutes les clés d'avant sont mortes. On ouvre une nouvelle session STS sans credentials préalables (`AssumeRole` sur le rôle désormais ouvert), et on accède à `s3://vdc-coord-audit/flag.canary` :
 
-![Analyse locale](captures/01-analyse.png)
+```
+HLB2026{2c769d9f441def112ad098192a7a3bb9}
+```
 
-![Résolution locale](captures/02-resolution.png)
+## À retenir
 
-![Flag](captures/03-flag.png)
-
-## Validation et flag
-
-Le flag est conservé dans le fichier local flags.txt ou flag.txt. Aucune validation externe supplémentaire n’est affirmée ici.
-
-Flag obtenu : `HLB2026{2c769d9f441def112ad098192a7a3bb9}`
-
-## Conclusion
-
-La résolution repose sur la faiblesse indiquée dans la technique principale, puis sur la vérification locale du résultat conservé. Le flag final ci-dessus est copié depuis la preuve locale réellement présente.
+Les trust policies IAM sont souvent oubliées lors d'un nettoyage d'incident. Un `UpdateAssumeRolePolicy` sur un rôle existant est suffisant pour maintenir un accès persistant même si toutes les clés créées sont révoquées.

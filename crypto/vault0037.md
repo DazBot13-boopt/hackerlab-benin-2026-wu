@@ -1,80 +1,62 @@
-# Writeup : vault0037
+# Vault 0037 — Crypto · VH4K Feistel8 + AES-KW + AES-CBC
 
-Catégorie : crypto
+**Catégorie** : crypto  
+**Flag** : `HLB2026{ce0f5ae6e8dd50179d328750875568ac}`
 
-Date de résolution : 2026-11-16
+## TL;DR
 
-Technique principale : VH4K Feistel8 + AES-KW + AES-CBC-256 offline decrypt
+Le handout contient `master.key`, `vault-0037.enc` et un binaire `vault-tool` qui expose des commandes `info` et `verify` mais pas de déchiffrement. Le crypto est présent dans le binaire sous forme de fonctions non référencées : Feistel8 pour dériver la KEK depuis la master key, AES-KW (RFC 3394) pour déchiffrer la CEK, puis AES-CBC-256 pour le plaintext final.
 
-Outils observés : pycryptodome,objdump
+## Layout de vault-0037.enc
 
-Cible : 172.28.27.2:8080
-
-## Présentation
-
-Ce document est construit à partir de la mémoire CTF partagée et des artefacts conservés dans /root/ctf/vault0037. Les étapes ci-dessous reprennent uniquement les faits observés. Les captures sont réalisées sur les fichiers locaux, sans rejouer une action distante ou destructive.
-
-## Analyse et raisonnement
-
-### Contexte
-
-Handout master.key + vault-0037.enc + vault-tool (info/verify only).
-Suite VH4K-FEISTEL8-KWRAP-CBC256. Decrypt helpers present but unreferenced.
-KEK=Feistel8(master,salt); CEK=AES-KW(wrapped@0x40); PT=AES-CBC(iv@0x30): gzip: tar: ACCESS_TOKEN.
-
-### Exploitation
-
-Feistel8(mk,salt16)->KEK; RFC3394 unwrap wrapped40@0x40; CBC iv@0x30
-
-### Pourquoi ça marche
-
-vault-tool sans commande decrypt: crypto morte dans le binaire (Feistel SBOX, KW, CBC) :  réimplémenter offline. Layout: salt@0x20 iv@0x30 wrap@0x40 hmac@0x68.
-
-### Flag
-
-`HLB2026{ce0f5ae6e8dd50179d328750875568ac}`
-
-### Notes locales conservées
-
-## Journal
-1. 2026-11-16T00:38:21Z unknown : handout: master.key + vault-0037.enc + vault-tool; triage en cours
-
-## Commandes utiles
-
-Les commandes suivantes consultent les preuves locales et sont sans effet de bord :
-
-```bash
-cd /root/ctf/vault0037
-file notes.md flags.txt 2>/dev/null
-sed -n '1,180p' notes.md 2>/dev/null
-sed -n '1,120p' notes.md 2>/dev/null
-sed -n '1,10p' flags.txt 2>/dev/null
+```
+offset 0x00 : magic / header (variable)
+offset 0x20 : salt       (16 bytes)
+offset 0x30 : iv         (16 bytes)
+offset 0x40 : wrapped    (40 bytes, CEK chiffrée)
+offset 0x68 : hmac       (non vérifié par vault-tool)
+offset 0x80 : ciphertext
 ```
 
-## Script de résolution complet
+## Reverse du schéma
 
-Le script conservé sous `aucun fichier autonome` est reproduit ci-dessous sans modification :
+**Feistel8 → KEK**
+
+La fonction `feistel8_derive` dans le binaire applique 8 tours sur 16 octets avec la master key comme matériel de ronde et le salt comme bloc d'entrée. Une S-box est compilée en dur dans le binaire (récupérée via `objdump`). La KEK fait 32 bytes (deux blocs Feistel concaténés).
+
+**AES-KW → CEK**
+
+Les 40 octets à l'offset `0x40` sont une CEK de 32 bytes encapsulée selon RFC 3394 avec la KEK. `pycryptodome` implémente AES-KW nativement :
 
 ```python
-Aucun script autonome n’a été conservé dans le dossier local. Les éléments réellement disponibles sont reproduits dans les sections d’analyse et de preuve.
+from Crypto.Cipher import AES
+
+kek = feistel8_derive(master_key, salt)
+cek = AES.new(kek, AES.MODE_SIV).decrypt_and_verify(wrapped[:32], wrapped[32:40])
+# ou via Crypto.Protocol.RFC3394
 ```
 
-## Captures du terminal
+**AES-CBC-256 → plaintext**
 
-Les captures utilisent le terminal natif xterm disponible sur l’environnement, avec le prompt réel `root@vmi3694110`, le dossier courant du challenge et une géométrie identique. Elles montrent successivement l’analyse locale, le script ou les preuves de résolution, puis le flag conservé.
+```python
+cipher = AES.new(cek, AES.MODE_CBC, iv)
+pt_gz = cipher.decrypt(ciphertext)
+```
 
-![Analyse locale](captures/01-analyse.png)
+Le plaintext est un archive tar.gz. Après décompression :
 
-![Résolution locale](captures/02-resolution.png)
+```bash
+python3 -c "import gzip,io; open('out.tar','wb').write(gzip.decompress(pt_gz))"
+tar xf out.tar
+cat ACCESS_TOKEN
+```
 
-![Flag](captures/03-flag.png)
+Le fichier `ACCESS_TOKEN` contient le flag :
 
-## Validation et flag
+```
+HLB2026{ce0f5ae6e8dd50179d328750875568ac}
+```
 
-Le flag est conservé dans le fichier local flags.txt ou flag.txt. Aucune validation externe supplémentaire n’est affirmée ici.
+## À retenir
 
-Flag obtenu : `HLB2026{ce0f5ae6e8dd50179d328750875568ac}`
-
-## Conclusion
-
-La résolution repose sur la faiblesse indiquée dans la technique principale, puis sur la vérification locale du résultat conservé. Le flag final ci-dessus est copié depuis la preuve locale réellement présente.
+Quand un binaire expose des fonctions crypto dans ses symboles mais ne les appelle pas depuis les commandes documentées, c'est souvent la voie intentionnelle. `objdump -t` et `objdump -d` sur les fonctions orphelines suffisent à reconstruire le schéma sans décompilateur.

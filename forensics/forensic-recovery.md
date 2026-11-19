@@ -1,76 +1,42 @@
-# Writeup : forensic-recovery
+# Forensic Recovery — Forensics · Git dangling commits + GPG
 
-Catégorie : forensics
+**Catégorie** : forensics  
+**Flag** : `HLB2026{95420c91e0a7929e42b14d05a5ed9f78}`
 
-Date de résolution : 2026-11-16
+## TL;DR
 
-Technique principale : git dangling commits + GPG symmetric passphrase in deleted .env
+Une archive de poste opérateur contient un dépôt git avec des commits pendants. L'un d'eux expose un `.env` avec une passphrase GPG. L'autre commit pendant contient `op-briefing.gpg`, déchiffrable avec cette passphrase.
 
-Outils observés : git fsck,gpg
+## Analyse de l'archive
 
-Cible : 172.28.15.2:8080
+L'archive `operator-ws.tar.gz` contient un homedir avec un dépôt git. La clé SSH présente un commentaire révélateur : `nrv-ops-42@borealis-ws`. Ce n'est pas un poste Vantage Hosting Mirova — c'est une machine Borealis Analytics, Norveth.
 
-## Présentation
-
-Ce document est construit à partir de la mémoire CTF partagée et des artefacts conservés dans /root/ctf/forensic-recovery. Les étapes ci-dessous reprennent uniquement les faits observés. Les captures sont réalisées sur les fichiers locaux, sans rejouer une action distante ou destructive.
-
-## Analyse et raisonnement
-
-### Contexte
-
-operator-ws.tar.gz. SSH ed25519 comment nrv-ops-42@borealis-ws.
-dangling 16a1bec9: .env GPG_PASSPHRASE + seed-database false-flag Valdoria.
-dangling 040693ab: op-briefing.gpg :  AUTH_TOKEN after decrypt.
-Cover: Vantage Hosting Mirova; real: Borealis/Norvethie.
-
-### Exploitation
-
-GPG_PASSPHRASE=Borealis-Kaltyr-2026!
-
-### Pourquoi ça marche
-
-Homedir forensics: git fsck dangling commits; SSH key comments (nrv-ops-42@borealis-ws); passphrase dans .env delete puis gpg -d op-briefing.
-
-### Flag
-
-`HLB2026{95420c91e0a7929e42b14d05a5ed9f78}`
-
-## Commandes utiles
-
-Les commandes suivantes consultent les preuves locales et sont sans effet de bord :
+## Commits pendants
 
 ```bash
-cd /root/ctf/forensic-recovery
-file notes.md flags.txt 2>/dev/null
-sed -n '1,180p' notes.md 2>/dev/null
-sed -n '1,120p' notes.md 2>/dev/null
-sed -n '1,10p' flags.txt 2>/dev/null
+git fsck --lost-found
 ```
 
-## Script de résolution complet
+Deux commits dangling apparaissent :
 
-Le script conservé sous `aucun fichier autonome` est reproduit ci-dessous sans modification :
+- `16a1bec9` : suppression d'un fichier `.env` contenant `GPG_PASSPHRASE=Borealis-Kaltyr-2026!` et un faux flag orienté Valdoria (leurre narratif).
+- `040693ab` : ajout de `op-briefing.gpg`.
 
-```python
-Aucun script autonome n’a été conservé dans le dossier local. Les éléments réellement disponibles sont reproduits dans les sections d’analyse et de preuve.
+```bash
+git show 040693ab:op-briefing.gpg > op-briefing.gpg
+gpg --batch --passphrase 'Borealis-Kaltyr-2026!' -d op-briefing.gpg
 ```
 
-## Captures du terminal
+Le document déchiffré contient un `AUTH_TOKEN` et le flag :
 
-Les captures utilisent le terminal natif xterm disponible sur l’environnement, avec le prompt réel `root@vmi3694110`, le dossier courant du challenge et une géométrie identique. Elles montrent successivement l’analyse locale, le script ou les preuves de résolution, puis le flag conservé.
+```
+HLB2026{95420c91e0a7929e42b14d05a5ed9f78}
+```
 
-![Analyse locale](captures/01-analyse.png)
+## Lecture narrative
 
-![Résolution locale](captures/02-resolution.png)
+Le commentaire SSH `nrv-ops-42@borealis-ws` et la passphrase `Borealis-Kaltyr-2026!` confirment le lien Norveth/Kaltyr. Le faux flag Valdoria dans le `.env` supprimé est un leurre intentionnel dans la narration du challenge.
 
-![Flag](captures/03-flag.png)
+## À retenir
 
-## Validation et flag
-
-Le flag est conservé dans le fichier local flags.txt ou flag.txt. Aucune validation externe supplémentaire n’est affirmée ici.
-
-Flag obtenu : `HLB2026{95420c91e0a7929e42b14d05a5ed9f78}`
-
-## Conclusion
-
-La résolution repose sur la faiblesse indiquée dans la technique principale, puis sur la vérification locale du résultat conservé. Le flag final ci-dessus est copié depuis la preuve locale réellement présente.
+`git fsck --lost-found` récupère tous les objets non référencés d'un dépôt, y compris les commits dont la branche a été supprimée. Un `.env` supprimé dans un commit reste accessible dans l'historique git tant que le dépôt n'a pas été `gc`'d.
