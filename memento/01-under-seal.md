@@ -1,4 +1,4 @@
-# The Fall of Memento — Q1 · Under Seal (200 pts)
+# The Fall of Memento : Q1 · Under Seal (200 pts)
 
 > *« On a forcé la planque d'Henri Mertens. Ce qu'il a tenté de détruire est sous scellés. Trouvez le flag dans le dossier. »*
 

@@ -1,4 +1,4 @@
-# HARMATTAN — Operation BATMAN (500 pts)
+# HARMATTAN : Operation BATMAN (500 pts)
 
 > *« Exploitez les données disponibles pour localiser Erik Lindberg, l'un des agents en fuite, avant qu'il ne parvienne à quitter le territoire. »*
 

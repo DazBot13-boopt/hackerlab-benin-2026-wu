@@ -1,4 +1,4 @@
-# Cagliostro — Web · LFI + JWT forge + WeasyPrint SSRF
+# Cagliostro : Web · LFI + JWT forge + WeasyPrint SSRF
 
 **Catégorie** : web  
 **Flag** : `HLB2026{21ed646b32d8bb8298a7c03c41ba0a1a}`
@@ -48,7 +48,7 @@ Le PDF retourné contient le flag en pièce jointe :
 HLB2026{21ed646b32d8bb8298a7c03c41ba0a1a}
 ```
 
-Note : le flag se termine par `}}` dans la réponse brute — un seul `}` fait partie du format, l'autre est un artefact du template.
+Note : le flag se termine par `}}` dans la réponse brute : un seul `}` fait partie du format, l'autre est un artefact du template.
 
 ## À retenir
 

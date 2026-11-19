@@ -1,4 +1,4 @@
-# Lockbox — Crypto · OTP addition digit-wise
+# Lockbox : Crypto · OTP addition digit-wise
 
 **Catégorie** : crypto  
 **Flag** : `HLB2026{5affddc8187619ef9d7e625982c65197}`

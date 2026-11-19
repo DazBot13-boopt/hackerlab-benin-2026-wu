@@ -1,6 +1,6 @@
-# Sail Away — Q4 · Renegade (100 pts)
+# Sail Away : Q4 · Renegade (100 pts)
 
-> *« Empêche le RAVN de prendre la mer. Automate LockCtl — Modbus TCP. »*
+> *« Empêche le RAVN de prendre la mer. Automate LockCtl : Modbus TCP. »*
 
 ## TL;DR
 
@@ -14,10 +14,10 @@ Depuis `/api/operator-docs` (authentifié via Q3) :
 
 | Tag                 | Adresse | R/W | Fonction                           |
 |---------------------|---------|-----|------------------------------------|
-| GATE_AVAL_OPEN      | coil 0  | R/W | Porte aval — ouvrir                |
-| GATE_AMONT_OPEN     | coil 1  | R/W | Porte amont — ouvrir               |
-| GATE_AVAL_CLOSE     | coil 2  | R/W | Porte aval — fermer                |
-| GATE_AMONT_CLOSE    | coil 3  | R/W | Porte amont — fermer               |
+| GATE_AVAL_OPEN      | coil 0  | R/W | Porte aval : ouvrir                |
+| GATE_AMONT_OPEN     | coil 1  | R/W | Porte amont : ouvrir               |
+| GATE_AVAL_CLOSE     | coil 2  | R/W | Porte aval : fermer                |
+| GATE_AMONT_CLOSE    | coil 3  | R/W | Porte amont : fermer               |
 | TRANSIT_INTERLOCK   | coil 10 | R/W | Verrou anti-fermeture sur navire   |
 | LVL_SAS             | HR 100  | R   | Niveau sas (cm)                    |
 | VESSEL_IN_CHAMBER   | IR 12   | R   | Détection navire dans le sas       |

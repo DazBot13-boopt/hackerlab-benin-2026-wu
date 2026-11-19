@@ -1,4 +1,4 @@
-# Vault KeyCtl — Pwn · Integer truncation + OOB null byte
+# Vault KeyCtl : Pwn · Integer truncation + OOB null byte
 
 **Catégorie** : pwn  
 **Flag** : `HLB2026{da404f25bb9f4a874b0eabe0f7ec4b1c}`

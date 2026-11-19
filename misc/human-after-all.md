@@ -1,4 +1,4 @@
-# Human After All — Misc · Phishing SMTP + Roundcube
+# Human After All : Misc · Phishing SMTP + Roundcube
 
 **Catégorie** : misc  
 **Flag** : `HLB2026{5da90efc56980d3486c132b09b4d26f9}`
@@ -17,7 +17,7 @@ La bannière IMAP révèle `Dovecot` avec `AUTH=PLAIN AUTH=LOGIN`.
 
 ## Connexion Roundcube
 
-Une tentative IMAP directe avec `mstrand/stranded` retourne `AUTHENTICATIONFAILED` — le service est tarpité. La même paire de credentials passe sans problème via Roundcube :
+Une tentative IMAP directe avec `mstrand/stranded` retourne `AUTHENTICATIONFAILED` : le service est tarpité. La même paire de credentials passe sans problème via Roundcube :
 
 ```
 http://172.28.3.4/
@@ -66,7 +66,7 @@ Peux-tu me répondre avec le numéro auquel je peux te joindre aujourd'hui ?
 
 Merci,
 Antoine
-Rédacteur en chef — Tervalis Tribune
+Rédacteur en chef : Tervalis Tribune
 """)
     with smtplib.SMTP(args.host, 25, timeout=20) as smtp:
         smtp.ehlo("redaction.tervalitribune.trv")

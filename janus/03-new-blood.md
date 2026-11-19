@@ -1,4 +1,4 @@
-# The Fall of JANUS — Q3 · New Blood (100 pts)
+# The Fall of JANUS : Q3 · New Blood (100 pts)
 
 > *« Après avoir obtenu un premier accès, un compte utilisateur a été créé. Retrouvez : le nom, l'heure de création, l'heure de première ouverture de session. »*
 
@@ -31,7 +31,7 @@ RID `000003E9` = `backup` :
 - `pw_last_set = 2026-11-08 16:55:56 UTC` → **17:55:56 CET** = heure de création
 - `last_logon  = 2026-11-08 18:47:49 UTC` → dernière ouverture, pas la première
 
-## Terminal Services — première session
+## Terminal Services : première session
 
 Pour la **première** ouverture on relit `Microsoft-Windows-TerminalServices-LocalSessionManager%4Operational.evtx` (déchiffré) :
 

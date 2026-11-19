@@ -1,4 +1,4 @@
-# The Fall of JANUS — Q9 · Hidden Treasure (100 pts)
+# The Fall of JANUS : Q9 · Hidden Treasure (100 pts)
 
 > *« Examinez toutes les preuves restaurées et retrouvez l'information dissimulée. »*
 

@@ -1,4 +1,4 @@
-# Sealed Order — Q11 · Délégation contrainte S4U2Self/S4U2Proxy
+# Sealed Order : Q11 · Délégation contrainte S4U2Self/S4U2Proxy
 
 **Catégorie** : AD  
 **Flag** : `HLB2026{CONSTRAINED_DELEGATION_S4U_SERVICE_IMPERSONATION}`

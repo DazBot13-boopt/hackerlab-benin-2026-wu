@@ -1,4 +1,4 @@
-# The Fall of JANUS — Q2 · The Trojan Horse (100 pts)
+# The Fall of JANUS : Q2 · The Trojan Horse (100 pts)
 
 > *« Un fichier malveillant a été introduit sur le portail puis exploité. Identifiez : le nom du fichier malveillant, l'IP source, la dernière authentification réussie. »*
 
@@ -58,7 +58,7 @@ Deux sessions attaquant visibles :
 
 | IP               | 1er login OK          | Commentaire                       |
 |------------------|-----------------------|-----------------------------------|
-| `185.220.101.47` | `07/Nov 23:14:16 UTC` | Tor exit — dépose `update.php`    |
+| `185.220.101.47` | `07/Nov 23:14:16 UTC` | Tor exit : dépose `update.php`    |
 | `45.137.22.198`  | `08/Nov 16:15:24 +01` | 2e session, dépose `allmatter.php` |
 | `45.137.22.198`  | `08/Nov 17:17:13 +01` | **dernière auth réussie** du dossier |
 

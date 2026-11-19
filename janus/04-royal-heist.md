@@ -1,4 +1,4 @@
-# The Fall of JANUS — Q4 · Royal Heist (100 pts)
+# The Fall of JANUS : Q4 · Royal Heist (100 pts)
 
 > *« L'attaquant a exporté la base de données des verdicts, puis l'a transférée vers une infrastructure distante. Déterminez : l'heure du lancement de l'exportation, l'IP:port de destination. »*
 
@@ -36,10 +36,10 @@ print(f.get_last_run_time(0))
 
 Confirmé par `Windows PowerShell.evtx` :
 
-- `17:22:13 UTC` — ouverture PS initiale (EID 400)
-- **`17:39:07 UTC`** — exécution `mysqldump.exe`
-- `17:40:20 UTC` — PS lançant `Invoke-WebRequest … exfil.zip`
-- `17:41:48 UTC` — PS lançant `Invoke-WebRequest … verdicts_dump.sql`
+- `17:22:13 UTC` : ouverture PS initiale (EID 400)
+- **`17:39:07 UTC`** : exécution `mysqldump.exe`
+- `17:40:20 UTC` : PS lançant `Invoke-WebRequest … exfil.zip`
+- `17:41:48 UTC` : PS lançant `Invoke-WebRequest … verdicts_dump.sql`
 
 ## Flag
 

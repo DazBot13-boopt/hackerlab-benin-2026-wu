@@ -1,4 +1,4 @@
-# Last Departure (Northline) — Q4 · WINDOW (30 pts)
+# Last Departure (Northline) : Q4 · WINDOW (30 pts)
 
 > *« L'équipe d'interception a besoin de la fenêtre exacte. »*
 
@@ -58,7 +58,7 @@ Deux assignments :
 ```json
 {"id":"ASG-310", "status":"cancelled", ...}
 {"id":"ASG-318", "status":"active",
- "meeting_point":"Hangar C4 — quai de service nord",
+ "meeting_point":"Hangar C4 : quai de service nord",
  "vehicle":"Fourgon bleu nuit",
  "registration":"NV-482-KR",
  "support_id":"NV-USB-84F2",

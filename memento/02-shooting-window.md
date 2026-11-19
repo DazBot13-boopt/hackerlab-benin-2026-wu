@@ -1,4 +1,4 @@
-# The Fall of Memento — Q2 · Shooting window (100 pts)
+# The Fall of Memento : Q2 · Shooting window (100 pts)
 
 > *« Donne la destination réelle et l'heure locale d'arrivée. »*
 

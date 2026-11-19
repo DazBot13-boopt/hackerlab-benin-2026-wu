@@ -1,4 +1,4 @@
-# The Fall of JANUS — Q5 · No Witnesses (100 pts)
+# The Fall of JANUS : Q5 · No Witnesses (100 pts)
 
 > *« Après l'exfiltration, l'attaquant a supprimé le fichier contenant l'export de la base. Retrouvez la date et l'heure de suppression. »*
 

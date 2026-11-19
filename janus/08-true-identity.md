@@ -1,4 +1,4 @@
-# The Fall of JANUS — Q8 · True Identity (100 pts)
+# The Fall of JANUS : Q8 · True Identity (100 pts)
 
 > *« Retrouvez l'alias utilisé par l'attaquant et son nom complet. »*
 

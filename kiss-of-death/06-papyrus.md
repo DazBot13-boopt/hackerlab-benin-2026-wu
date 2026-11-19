@@ -1,4 +1,4 @@
-# Kiss of Death — Q6 · Papyrus (300 pts)
+# Kiss of Death : Q6 · Papyrus (300 pts)
 
 > *« La dernière notification du téléphone parle de : "Technique anti-forensique appliquée au fichier sensible." Retrouvez le fichier beth.png et identifiez ce qu'il dissimule. Flag = référence du dossier sur la page de garde. »*
 
@@ -10,7 +10,7 @@
 2. `AES-128-CBC -nopad` sur le fichier entier → un second PNG dont l'IHDR ment sur sa hauteur ; les lignes cachées sous l'image révèlent `K3/IV3`.
 3. Deuxième déchiffrement → un PDF de 19 pages dont la page de garde contient la référence.
 
-## Étape 1 — `K1/IV1` dans les bits de padding
+## Étape 1 : `K1/IV1` dans les bits de padding
 
 Analyse initiale de `beth.png` :
 
@@ -37,7 +37,7 @@ Après regroupement final :
 K1=<hex AES-128>;IV1=<hex AES-128>
 ```
 
-## Étape 2 — déchiffrement global
+## Étape 2 : déchiffrement global
 
 Le fichier `beth.png` fait exactement un multiple de 16 (13 775 536 octets) → cryptogramme *brut* en CBC sans bourrage :
 
@@ -71,7 +71,7 @@ K  = <hex>
 IV = <hex>
 ```
 
-## Étape 3 — PDF
+## Étape 3 : PDF
 
 ```bash
 openssl enc -aes-128-cbc -d -nopad \
@@ -87,11 +87,11 @@ PDF 1.4 de 19 pages. La **page de garde** est un tableau d'intitulés (titre, op
 HLB2026{<reference-dossier>}
 ```
 
-> La référence est celle du tableau de la page de garde — par convention non recopiée ici (unique à l'instance).
+> La référence est celle du tableau de la page de garde : par convention non recopiée ici (unique à l'instance).
 
 ## Pistes qui n'ont PAS marché
 
 - Déchiffrer seulement le chunk privé `aaaa` → sortie aléatoire. C'est le fichier **entier** qui est chiffré.
-- Lire bêtement le texte du `Comment` : c'est un extrait de la RFC 4648 — c'est un leurre.
+- Lire bêtement le texte du `Comment` : c'est un extrait de la RFC 4648 : c'est un leurre.
 - Mode CTR/ECB/CFB : seul CBC `-nopad` sur le PNG complet fonctionne.
 - Ouvrir le step2 avec un viewer : l'image s'affiche en 700×360 sans rien montrer tant qu'on ne corrige pas l'IHDR.

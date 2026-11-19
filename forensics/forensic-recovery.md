@@ -1,4 +1,4 @@
-# Forensic Recovery — Forensics · Git dangling commits + GPG
+# Forensic Recovery : Forensics · Git dangling commits + GPG
 
 **Catégorie** : forensics  
 **Flag** : `HLB2026{95420c91e0a7929e42b14d05a5ed9f78}`
@@ -9,7 +9,7 @@ Une archive de poste opérateur contient un dépôt git avec des commits pendant
 
 ## Analyse de l'archive
 
-L'archive `operator-ws.tar.gz` contient un homedir avec un dépôt git. La clé SSH présente un commentaire révélateur : `nrv-ops-42@borealis-ws`. Ce n'est pas un poste Vantage Hosting Mirova — c'est une machine Borealis Analytics, Norveth.
+L'archive `operator-ws.tar.gz` contient un homedir avec un dépôt git. La clé SSH présente un commentaire révélateur : `nrv-ops-42@borealis-ws`. Ce n'est pas un poste Vantage Hosting Mirova : c'est une machine Borealis Analytics, Norveth.
 
 ## Commits pendants
 

@@ -1,4 +1,4 @@
-# Death Match — Battle 01 · SSTI Jinja2 sur Meridian CTI
+# Death Match : Battle 01 · SSTI Jinja2 sur Meridian CTI
 
 **Catégorie** : web / A&D  
 **Flag (rotation au moment de la capture)** : `HLB2026{f2b0efcfdc3c63001f425be4e75d63057caa554d91571fa1}`
@@ -21,7 +21,7 @@ Port 8443 : Internal API avec `/api/docs` exposé.
 
 ## SSTI Jinja2
 
-La création de compte est ouverte. Après login, l'endpoint `/indicators/report?title={{7*7}}` retourne `<title>49</title>` — confirmation immédiate de la SSTI.
+La création de compte est ouverte. Après login, l'endpoint `/indicators/report?title={{7*7}}` retourne `<title>49</title>` : confirmation immédiate de la SSTI.
 
 Le payload RCE pour lire le flag :
 

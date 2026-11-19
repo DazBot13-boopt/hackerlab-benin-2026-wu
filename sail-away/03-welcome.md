@@ -1,6 +1,6 @@
-# Sail Away — Q3 · Welcome to the Machine (100 pts)
+# Sail Away : Q3 · Welcome to the Machine (100 pts)
 
-> *« Le RAVN sort par l'Écluse Est. HMI SCADA — Poste de supervision. »*
+> *« Le RAVN sort par l'Écluse Est. HMI SCADA : Poste de supervision. »*
 
 ## TL;DR
 

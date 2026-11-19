@@ -1,4 +1,4 @@
-# Inside Job — Q1 · CVE-2026-9273 Reset Password Poisoning
+# Inside Job : Q1 · CVE-2026-9273 Reset Password Poisoning
 
 **Catégorie** : web  
 **Flag** : `HLB2026{restrict-content}`

@@ -1,4 +1,4 @@
-# Subject File — Q · SMB share caché Recon-Data
+# Subject File : Q · SMB share caché Recon-Data
 
 **Catégorie** : AD  
 **Flag** : `HLB2026{RECON_VALDORIA_AD_ENUMERATED}`

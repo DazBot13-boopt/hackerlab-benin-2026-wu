@@ -1,4 +1,4 @@
-# The Fall of Memento — Q3 · The Hideout (50 pts)
+# The Fall of Memento : Q3 · The Hideout (50 pts)
 
 > *« Il lui faut un toit, loin des regards indiscrets. Où comptait-il trouver refuge ? »*
 

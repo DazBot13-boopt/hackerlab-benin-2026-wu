@@ -1,4 +1,4 @@
-# Inside Job — Q2 · AES-256-CBC via fuite pg_read_file
+# Inside Job : Q2 · AES-256-CBC via fuite pg_read_file
 
 **Catégorie** : crypto  
 **Flag** : `HLB2026{aes256cbc_v4ult_c0ntr4ts_n0rv3th}`

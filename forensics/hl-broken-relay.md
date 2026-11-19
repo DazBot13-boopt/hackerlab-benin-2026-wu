@@ -1,4 +1,4 @@
-# Broken Relay — Forensics · Analyse AD1 + déchiffrement relay.db
+# Broken Relay : Forensics · Analyse AD1 + déchiffrement relay.db
 
 **Catégorie** : forensics  
 **Flag Q1** : `http://relay-chat.nrv:8088/`  
@@ -8,7 +8,7 @@
 
 Une image forensique AD1 d'une machine Windows compromise. Q1 : retrouver l'URL d'une plateforme secrète dans les artefacts browser. Q3 : déchiffrer 24 messages d'un salon de chat chiffré AES-256-GCM, puis décoder une couche de chiffrement maison sur le message final.
 
-## Q1 — URL de RELAY
+## Q1 : URL de RELAY
 
 L'artefact AD1 (~1.2 GB sur Mega) contient un profil Windows. Après extraction et décompression des chunks zlib, on grep les URLs :
 
@@ -25,7 +25,7 @@ L'URL apparaît dans plusieurs emplacements du profil Edge :
 http://relay-chat.nrv:8088/
 ```
 
-## Q3 — Conspiracy
+## Q3 : Conspiracy
 
 Sur le bureau de l'utilisateur `thanos` : `channel.pdf` (verrouillé avec le mot de passe `nisrina`) et `cipher.exe`.
 

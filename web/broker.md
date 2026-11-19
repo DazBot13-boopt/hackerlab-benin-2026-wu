@@ -1,4 +1,4 @@
-# Silent Broker — Web · CVE-2023-46604 ActiveMQ RCE
+# Silent Broker : Web · CVE-2023-46604 ActiveMQ RCE
 
 **Catégorie** : web  
 **Flag** : `HLB2026{INTERNAL_SERVICE_RCE_CASE_RELAY_COMPROMISED}`

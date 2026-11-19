@@ -1,4 +1,4 @@
-# FBI Valdoria — Q12 · Core Systems (100 pts)
+# FBI Valdoria : Q12 · Core Systems (100 pts)
 
 > *« Le serveur applicatif APP01 fait partie de l'infrastructure critique du FBI Valdoria. »*
 

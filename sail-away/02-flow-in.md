@@ -1,4 +1,4 @@
-# Sail Away — Q2 · Flow in (150 pts)
+# Sail Away : Q2 · Flow in (150 pts)
 
 > *« Le RAVN appareille cette nuit, notre demande officielle traîne. Pas le temps d'attendre : trouvez l'itinéraire du RAVN. »*
 

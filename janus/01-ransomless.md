@@ -1,4 +1,4 @@
-# The Fall of JANUS — Q1 · Ransomless (100 pts)
+# The Fall of JANUS : Q1 · Ransomless (100 pts)
 
 > *« La hiérarchie informe qu'un fichier d'importance systémique se trouvait sur le serveur compromis lors de l'incident. Les données du serveur ont été intégralement altérées par un ransomware. Récupérez d'une façon ou d'une autre le contenu de ce fichier. »*
 
