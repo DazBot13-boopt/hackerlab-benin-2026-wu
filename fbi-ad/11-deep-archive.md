@@ -1,5 +1,7 @@
 # FBI Valdoria : Q11 · Deep Archive (100 pts)
 
+> Variante de rédaction : [`ad/sealed-order-q11.md`](../ad/sealed-order-q11.md) (même épreuve, avec le piège des deux instances).
+
 > *« Documents classifiés sur FS01, niveau d'accès supérieur requis. »*
 
 ## TL;DR

@@ -2,6 +2,17 @@
 
 Writeups pour le CTF **HackerLab Benin 2026** (flag format `HLB2026{...}`).
 
+**35 fiches**, 13 dossiers : épreuves multi-étapes (JANUS, Northline, Memento, Sail Away,
+FBI Valdoria, Harmattan, Kiss of Death) et épreuves isolées par catégorie (web, crypto, pwn,
+AD, forensics, misc).
+
+## Sommaire
+
+- [Par CTF multi-épreuves](#par-ctf-multi-épreuves)
+- [Par catégorie](#par-catégorie)
+- [Couverture](#couverture)
+- [Crédits](#crédits)
+
 ## Par CTF multi-épreuves
 
 ### Forensics : The Fall of JANUS
@@ -12,6 +23,8 @@ Writeups pour le CTF **HackerLab Benin 2026** (flag format `HLB2026{...}`).
 - [Q5 · No Witnesses (100 pts)](./janus/05-no-witnesses.md) : USN journal
 - [Q8 · True Identity (100 pts)](./janus/08-true-identity.md) : OSINT sur `feu.hackerlab.bj`
 - [Q9 · Hidden Treasure (100 pts)](./janus/09-hidden-treasure.md) : stego base64 inversé
+
+> Q6 et Q7 ne sont pas couvertes : non résolues pendant l'épreuve.
 
 ### Web : Last Departure (Northline)
 - [Q4 · WINDOW (30 pts)](./northline/04-window.md) : SSRF + decimal IP bypass
@@ -54,8 +67,10 @@ Writeups pour le CTF **HackerLab Benin 2026** (flag format `HLB2026{...}`).
 - [cagliostro](./web/cagliostro.md)
 
 ### Active Directory
-- [sealed-order-q11](./ad/sealed-order-q11.md)
-- [core-systems-q12](./ad/core-systems-q12.md)
+- [Q11 · Deep Archive](./fbi-ad/11-deep-archive.md) — délégation contrainte S4U
+  ([variante `ad/sealed-order-q11.md`](./ad/sealed-order-q11.md))
+- [Q12 · Core Systems](./fbi-ad/12-core-systems.md) — RBCD + MachineAccountQuota
+  ([variante `ad/core-systems-q12.md`](./ad/core-systems-q12.md))
 - [subject-file](./ad/subject-file.md)
 
 ### Misc
@@ -69,4 +84,37 @@ Writeups pour le CTF **HackerLab Benin 2026** (flag format `HLB2026{...}`).
 
 ---
 
-> Tooling : impacket, pymodbus, pyzbar/pdf417decoder, pycryptodome, outils AD classiques (getTGT, getST, smbclient…).
+## Couverture
+
+| Dossier | Fiches | Points documentés |
+| --- | --- | --- |
+| `janus` | 7 | 700 |
+| `harmattan` | 1 | 500 |
+| `memento` | 3 | 350 |
+| `sail-away` | 3 | 350 |
+| `kiss-of-death` | 1 | 300 |
+| `fbi-ad` | 2 | 200 |
+| `northline` | 1 | 30 |
+| `ad` | 3 | — |
+| `crypto` | 3 | — |
+| `forensics` | 3 | — |
+| `misc` | 2 | — |
+| `pwn` | 1 | — |
+| `web` | 5 | — |
+| **Total** | **35** | **2 430** |
+
+Les 17 fiches dont le titre ne porte pas de barème sont comptées sans points plutôt qu'estimées.
+
+## Crédits
+
+- Auteurs : `DazBot13-boopt` et `elielfresnel`.
+- Les writeups décrivent des épreuves terminées, dans un cadre CTF : pas de cible réelle, pas
+  d'exploitation hors périmètre.
+- **Aucune licence n'est déclarée à ce jour** : par défaut, tous droits réservés. Si la
+  réutilisation est souhaitée, ajouter un fichier `LICENSE` (CC BY-SA 4.0 pour un partage avec
+  attribution, MIT pour un usage libre) — c'est une décision des auteurs, pas des contributeurs.
+
+## Tooling
+
+impacket, pymodbus, pyzbar/pdf417decoder, pycryptodome, outils AD classiques
+(`getTGT`, `getST`, `smbclient`…).

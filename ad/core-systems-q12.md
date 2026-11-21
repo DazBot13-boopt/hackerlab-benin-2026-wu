@@ -1,5 +1,7 @@
 # Core Systems : Q12 · RBCD via LDAP simple bind
 
+> Même épreuve que [FBI Valdoria · Q12 · Core Systems](../fbi-ad/12-core-systems.md) : autre rédaction.
+
 **Catégorie** : AD  
 **Flag** : `HLB2026{RBCD_RESOURCE_DELEGATION_APP01_EXPLOITED}`
 
