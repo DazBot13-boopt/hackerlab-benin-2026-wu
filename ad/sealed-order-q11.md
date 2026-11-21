@@ -1,5 +1,7 @@
 # Sealed Order : Q11 · Délégation contrainte S4U2Self/S4U2Proxy
 
+> Même épreuve que [FBI Valdoria · Q11 · Deep Archive](../fbi-ad/11-deep-archive.md) : autre rédaction, mêmes prérequis.
+
 **Catégorie** : AD  
 **Flag** : `HLB2026{CONSTRAINED_DELEGATION_S4U_SERVICE_IMPERSONATION}`
 

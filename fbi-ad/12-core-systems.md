@@ -1,5 +1,7 @@
 # FBI Valdoria : Q12 · Core Systems (100 pts)
 
+> Variante de rédaction : [`ad/core-systems-q12.md`](../ad/core-systems-q12.md) (même épreuve).
+
 > *« Le serveur applicatif APP01 fait partie de l'infrastructure critique du FBI Valdoria. »*
 
 ## TL;DR
